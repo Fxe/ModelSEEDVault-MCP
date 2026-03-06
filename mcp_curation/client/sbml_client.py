@@ -2,7 +2,7 @@ import json
 import os
 from urllib import error, parse, request
 
-DEFAULT_SBML_API_BASE_URL = "http://192.168.1.202:8080"
+DEFAULT_SBML_API_BASE_URL = "http://localhost:8080"
 REQUEST_TIMEOUT_SECONDS = 20
 NODE_TYPE_SBML_MODEL = "SBMLModel"
 EDGE_HAS_COMPARTMENT = "has_sbml_compartment"
@@ -66,4 +66,3 @@ def list_model_children(model_id: str, edge_type: str) -> object:
         f"/graph/node/{NODE_TYPE_SBML_MODEL}/{model_id_encoded}/child",
         query={"edgeType": edge_type},
     )
-
