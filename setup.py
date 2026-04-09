@@ -9,5 +9,6 @@ setup(
         "fastapi>=0.110",
         "uvicorn[standard]>=0.27",
         "fastmcp>=2.0.0",
+        "requests>=2.31",
     ],
 )

@@ -8,13 +8,16 @@ from fastapi.responses import JSONResponse
 from fastapi.security import APIKeyHeader, HTTPAuthorizationCredentials, HTTPBearer
 
 from mcp_curation.mcp_server import build_mcp_asgi_app
+from mcp_curation.routers.genome_annotation import router as genome_annotation_router
 from mcp_curation.routers.sbml_curation import router as sbml_curation_router
+from mcp_curation.routers.vault import router as vault_router
 
 _MCP_MOUNT_PATH = "/mcp"
 _MCP_API_KEY_ENV = "MCP_API_KEY"
 _CORS_ALLOW_ORIGINS_ENV = "CORS_ALLOW_ORIGINS"
 _AUTO_KEY_NBYTES = 24
 _PUBLIC_PATHS = {"/health", "/openapi.json", "/docs", "/redoc"}
+_PUBLIC_PREFIXES = {"/vault/"}
 _effective_mcp_api_key = ""
 _mcp_api_key_source = "uninitialized"
 _bearer_scheme = HTTPBearer(auto_error=False)
@@ -92,11 +95,14 @@ def require_api_key_openapi(
 
 
 app.include_router(sbml_curation_router, dependencies=[Depends(require_api_key_openapi)])
+app.include_router(genome_annotation_router, dependencies=[Depends(require_api_key_openapi)])
+app.include_router(vault_router)
 
 
 @app.middleware("http")
 async def require_mcp_api_key(request: Request, call_next):
-    is_public_path = request.url.path in _PUBLIC_PATHS
+    path = request.url.path
+    is_public_path = path in _PUBLIC_PATHS or any(path.startswith(p) for p in _PUBLIC_PREFIXES)
     if request.method == "OPTIONS" or is_public_path:
         return await call_next(request)
 
